@@ -1,0 +1,295 @@
+```python
+"""
+Personal Finance Calculator
+Project 1: Software Engineering Portfolio
+
+Description:
+A command-line application that calculates monthly income,
+expenses, disposable income, and projected savings.
+
+Author: Your Name
+Version: 1.0
+"""
+
+
+def get_positive_amount(prompt):
+    """
+    Ask the user for a non-negative monetary amount.
+
+    Returns:
+        float: The validated monetary amount.
+    """
+    while True:
+        try:
+            amount = float(input(prompt))
+
+            if amount < 0:
+                print("Please enter an amount greater than or equal to zero.")
+            else:
+                return amount
+
+        except ValueError:
+            print("Invalid input. Please enter a numerical amount.")
+
+
+def get_positive_integer(prompt):
+    """
+    Ask the user for a positive whole number.
+
+    Returns:
+        int: The validated integer.
+    """
+    while True:
+        try:
+            number = int(input(prompt))
+
+            if number <= 0:
+                print("Please enter a whole number greater than zero.")
+            else:
+                return number
+
+        except ValueError:
+            print("Invalid input. Please enter a whole number.")
+
+
+def collect_income():
+    """
+    Collect the user's monthly income.
+
+    Returns:
+        float: The user's monthly income.
+    """
+    print("\n--- Monthly Income ---")
+
+    income = get_positive_amount(
+        "Enter your total monthly income ($): "
+    )
+
+    return income
+
+
+def collect_expenses():
+    """
+    Collect the user's recurring monthly expenses.
+
+    Returns:
+        dict: Expense categories and their monthly amounts.
+    """
+    print("\n--- Monthly Expenses ---")
+
+    expense_categories = [
+        "Housing",
+        "Food",
+        "Transportation",
+        "Utilities",
+        "Insurance",
+        "Debt Payments",
+        "Entertainment",
+        "Other Expenses"
+    ]
+
+    expenses = {}
+
+    for category in expense_categories:
+        amount = get_positive_amount(
+            f"Enter monthly {category.lower()} expenses ($): "
+        )
+
+        expenses[category] = amount
+
+    return expenses
+
+
+def calculate_total_expenses(expenses):
+    """
+    Calculate the total of all monthly expenses.
+
+    Args:
+        expenses (dict): Expense categories and amounts.
+
+    Returns:
+        float: Total monthly expenses.
+    """
+    return sum(expenses.values())
+
+
+def calculate_disposable_income(income, total_expenses):
+    """
+    Calculate income remaining after expenses.
+
+    Args:
+        income (float): Total monthly income.
+        total_expenses (float): Total monthly expenses.
+
+    Returns:
+        float: Remaining income, which may be negative.
+    """
+    return income - total_expenses
+
+
+def calculate_savings(disposable_income, savings_rate):
+    """
+    Estimate monthly savings based on a savings rate.
+
+    Args:
+        disposable_income (float): Income remaining after expenses.
+        savings_rate (float): Desired savings rate as a percentage.
+
+    Returns:
+        float: Estimated monthly savings.
+    """
+    if disposable_income <= 0:
+        return 0.0
+
+    return disposable_income * (savings_rate / 100)
+
+
+def project_savings(monthly_savings, months):
+    """
+    Project savings over a specified number of months.
+
+    Assumes the same savings amount each month and does not
+    include investment returns or interest.
+
+    Args:
+        monthly_savings (float): Estimated monthly savings.
+        months (int): Number of months in the projection.
+
+    Returns:
+        float: Projected savings.
+    """
+    return monthly_savings * months
+
+
+def display_financial_summary(
+    income,
+    expenses,
+    total_expenses,
+    disposable_income,
+    savings_rate,
+    monthly_savings,
+    projected_savings,
+    months
+):
+    """
+    Display a formatted summary of the user's financial position.
+    """
+    print("\n" + "=" * 50)
+    print("          PERSONAL FINANCE SUMMARY")
+    print("=" * 50)
+
+    print(f"\nMonthly Income:          ${income:,.2f}")
+
+    print("\nMonthly Expenses:")
+
+    for category, amount in expenses.items():
+        print(f"  {category:<25} ${amount:>10,.2f}")
+
+    print("-" * 50)
+
+    print(f"Total Monthly Expenses:  ${total_expenses:,.2f}")
+
+    print(f"Disposable Income:       ${disposable_income:,.2f}")
+
+    if disposable_income > 0:
+        print("\nFinancial Status: SURPLUS")
+        print("Your income exceeds your monthly expenses.")
+
+    elif disposable_income < 0:
+        print("\nFinancial Status: DEFICIT")
+        print("Your expenses exceed your monthly income.")
+
+    else:
+        print("\nFinancial Status: BREAK-EVEN")
+        print("Your income equals your monthly expenses.")
+
+    print(f"\nDesired Savings Rate:    {savings_rate:.1f}%")
+    print(f"Estimated Monthly Savings: ${monthly_savings:,.2f}")
+
+    print(f"\nSavings Projection ({months} months):")
+    print(f"Projected Savings:       ${projected_savings:,.2f}")
+
+    if income > 0:
+        savings_percentage = (monthly_savings / income) * 100
+
+        print(
+            f"Actual Savings Rate:     {savings_percentage:.2f}%"
+        )
+
+    print("\n" + "=" * 50)
+    print("Thank you for using the Personal Finance Calculator!")
+    print("=" * 50)
+
+
+def main():
+    """
+    Main function that runs the Personal Finance Calculator.
+    """
+    print("=" * 50)
+    print("       PERSONAL FINANCE CALCULATOR")
+    print("=" * 50)
+
+    # Step 1: Collect monthly income.
+    income = collect_income()
+
+    # Step 2: Collect monthly expenses.
+    expenses = collect_expenses()
+
+    # Step 3: Calculate total monthly expenses.
+    total_expenses = calculate_total_expenses(expenses)
+
+    # Step 4: Calculate disposable income.
+    disposable_income = calculate_disposable_income(
+        income,
+        total_expenses
+    )
+
+    # Step 5: Collect the desired savings rate.
+    print("\n--- Savings Goals ---")
+
+    savings_rate = get_positive_amount(
+        "Enter your desired savings rate (%): "
+    )
+
+    # Prevent a savings rate greater than 100%.
+    while savings_rate > 100:
+        print("Your savings rate must be between 0 and 100.")
+
+        savings_rate = get_positive_amount(
+            "Enter your desired savings rate (%): "
+        )
+
+    # Step 6: Calculate estimated monthly savings.
+    monthly_savings = calculate_savings(
+        disposable_income,
+        savings_rate
+    )
+
+    # Step 7: Ask how many months to project savings.
+    months = get_positive_integer(
+        "How many months would you like to project savings for? "
+    )
+
+    # Step 8: Calculate projected savings.
+    projected_savings = project_savings(
+        monthly_savings,
+        months
+    )
+
+    # Step 9: Display the financial summary.
+    display_financial_summary(
+        income,
+        expenses,
+        total_expenses,
+        disposable_income,
+        savings_rate,
+        monthly_savings,
+        projected_savings,
+        months
+    )
+
+
+# Run the program.
+if __name__ == "__main__":
+    main()
+```
